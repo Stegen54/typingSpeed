@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeQuest - The Typing Adventure</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div id="start-screen" class="screen">
+            <h1>TypeQuest</h1>
+            <input type="text" id="player-name" placeholder="Enter your name">
+            <div class="character-select">
+                <button data-character="wizard">Wizard</button>
+                <button data-character="knight">Knight</button>
+                <button data-character="rogue">Rogue</button>
+            </div>
+            <button id="start-game">Begin Adventure</button>
+        </div>
+
+        <div id="game-screen" class="screen hidden">
+            <div class="stats">
+                <span id="wpm">WPM: 0</span>
+                <span id="accuracy">Accuracy: 100%</span>
+                <span id="score">Score: 0</span>
+            </div>
+            <div id="story-text"></div>
+            <div id="typing-area">
+                <div id="text-display"></div>
+                <input type="text" id="typing-input" autocomplete="off">
+            </div>
+        </div>
+    </div>
+    <script src="js/gameData.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
