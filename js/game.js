@@ -6,7 +6,12 @@ class TypeQuest {
         this.wpm = 0;
         this.accuracy = 100;
         this.currentLevel = 0;
+        this.startTime = 0;
         
+        // Add these properties
+        this.timerInterval = null;
+        this.timeElapsed = 0;
+
         this.initializeElements();
         this.bindEvents();
     }
@@ -26,6 +31,10 @@ class TypeQuest {
         this.accuracyDisplay = document.getElementById('accuracy');
         this.scoreDisplay = document.getElementById('score');
         
+        // Add these elements
+        this.timerDisplay = document.getElementById('timer');
+        this.nextButton = document.getElementById('next-challenge');
+
         // Buttons
         this.startButton = document.getElementById('start-game');
         this.characterButtons = document.querySelectorAll('.character-select button');
@@ -41,6 +50,32 @@ class TypeQuest {
             });
         });
         this.typingInput.addEventListener('input', (e) => this.handleTyping(e));
+
+        // Add this event
+        this.nextButton.addEventListener('click', () => this.loadNextChallenge());
+    }
+
+    startTimer() {
+        this.timeElapsed = 0;
+        this.startTime = Date.now();
+        this.timerInterval = setInterval(() => {
+            this.timeElapsed = Math.floor((Date.now() - this.startTime) / 1000);
+            const minutes = Math.floor(this.timeElapsed / 60);
+            const seconds = this.timeElapsed % 60;
+            this.timerDisplay.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    stopTimer() {
+        clearInterval(this.timerInterval);
+    }
+
+    loadNextChallenge() {
+        this.currentLevel++;
+        this.typingInput.value = '';
+        this.nextButton.classList.add('hidden');
+        this.loadLevel();
+        this.startTimer();
     }
 
     startGame() {
@@ -52,12 +87,25 @@ class TypeQuest {
         
         this.startScreen.classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
+        this.startTime = Date.now();
         this.loadLevel();
+
+        // Add timer start
+        this.startTimer();
     }
 
     loadLevel() {
-        // TODO: Load level content from gameData
-        this.textDisplay.textContent = "Welcome brave adventurer! Type this text to begin your quest.";
+        if (this.currentLevel >= gameData.levels.length) {
+            alert('Congratulations! You have completed all levels.');
+            this.resetGame();
+            return;
+        }
+
+        const level = gameData.levels[this.currentLevel];
+        document.getElementById('story-text').textContent = level.story;
+        this.textDisplay.textContent = level.text;
+        this.typingInput.value = '';
+        this.startTime = Date.now();
     }
 
     handleTyping(e) {
@@ -73,16 +121,24 @@ class TypeQuest {
         this.wpmDisplay.textContent = `WPM: ${this.wpm}`;
         
         // Check if completed
-        if (typed === target) {
+        const level = gameData.levels[this.currentLevel];
+        if (typed === target && this.wpm >= level.minWPM) {
             this.completeLevel();
         }
     }
 
     completeLevel() {
-        this.score += 100;
+        this.stopTimer();
+        this.score += Math.max(100 - Math.floor(this.timeElapsed / 2), 10);
         this.scoreDisplay.textContent = `Score: ${this.score}`;
-        this.currentLevel++;
-        this.loadLevel();
+        this.nextButton.classList.remove('hidden');
+    }
+
+    resetGame() {
+        this.score = 0;
+        this.currentLevel = 0;
+        this.startScreen.classList.remove('hidden');
+        this.gameScreen.classList.add('hidden');
     }
 }
 
